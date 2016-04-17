@@ -3,3 +3,7 @@ system:
   hostname: "{{ inventory_hostname_short }}"
   timezone: CST-8
   zonename: Asia/Shanghai
+
+bogusnxdomain:
+  - 122.229.30.202
+  - 60.191.124.236
