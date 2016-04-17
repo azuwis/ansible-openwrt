@@ -1,0 +1,43 @@
+#!/bin/sh
+# http://wiki.openwrt.org/doc/techref/opkg
+
+. "$1"
+
+if [ x"$name" = x ]; then
+    printf '{"failed": true, "msg": "missing args: name"}'
+    exit
+fi
+
+state=${state:-present}
+update_cache=${update_cache:-False}
+
+if [ "$update_cache" = 'True' -o ! -e /var/opkg-lists/ ]; then
+    stdout="$(opkg update)"
+    if [ $? -ne 0 ]; then
+        printf '{"failed": true, "msg": "opkg update failed", "stdout": "%s"}' "$stdout"
+        exit
+    fi
+fi
+
+if opkg status "$name" | grep -q installed; then
+    pkg_installed='True'
+else
+    pkg_installed='False'
+fi
+
+if [ "$state" = 'present' -a "$pkg_installed" = 'True' ] \
+       || [ "$state" = 'absent'  -a "$pkg_installed" = 'False' ] ; then
+    printf '{"changed": false}'
+else
+    if [ "$state" = 'present' ]; then
+        action='install'
+    else
+        action='remove'
+    fi
+    stdout="$(opkg "$action" "$name")"
+    if [ $? -ne 0 ]; then
+        printf '{"failed": true, "msg": "opkg failed", "stdout": "%s"}' "$stdout"
+        exit
+    fi
+    printf '{"changed": true}'
+fi
