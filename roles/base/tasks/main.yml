@@ -7,3 +7,15 @@
   notify:
     - uci commit
     - reload system
+
+- name: set bogusnxdomain
+  uci:
+    command: add_list
+    key: dhcp.@dnsmasq[0].bogusnxdomain
+    value: "{{ item }}"
+  with_items:
+    - 122.229.30.202
+    - 60.191.124.236
+  notify:
+    - uci commit
+    - restart dnsmasq

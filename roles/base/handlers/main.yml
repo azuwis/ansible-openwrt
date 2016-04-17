@@ -4,3 +4,6 @@
 
 - name: reload system
   raw: /etc/init.d/system reload
+
+- name: restart dnsmasq
+  raw: /etc/init.d/dnsmasq restart
