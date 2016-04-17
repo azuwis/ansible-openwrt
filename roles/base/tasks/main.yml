@@ -1,5 +1,5 @@
 ---
-- name: set hostname
+- name: config system
   uci:
     command: set
     key: system.@system[0].{{ item.key }}
