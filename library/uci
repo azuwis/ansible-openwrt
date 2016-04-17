@@ -21,8 +21,7 @@ case "$command" in
         ;;
 esac
 
-if [ $changed -eq 0 ]
-then
+if [ $changed -eq 0 ]; then
     printf '{"changed": false}'
 else
     uci "$command" "${key}=${value}"
