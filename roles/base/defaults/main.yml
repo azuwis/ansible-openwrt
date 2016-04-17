@@ -1,3 +1,5 @@
 ---
 system:
   hostname: "{{ inventory_hostname_short }}"
+  timezone: CST-8
+  zonename: Asia/Shanghai
