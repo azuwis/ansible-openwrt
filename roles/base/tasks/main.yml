@@ -1,0 +1,9 @@
+---
+- name: set hostname
+  uci:
+    command: set
+    key: system.@system[0].hostname
+    value: "{{ inventory_hostname_short }}"
+  notify:
+    - uci commit
+    - reload system

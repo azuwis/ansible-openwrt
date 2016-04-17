@@ -1,0 +1,6 @@
+---
+- name: uci commit
+  raw: uci commit
+
+- name: reload system
+  raw: /etc/init.d/system reload

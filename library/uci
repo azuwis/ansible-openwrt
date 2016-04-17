@@ -1,0 +1,30 @@
+#!/bin/sh
+# http://wiki.openwrt.org/doc/techref/uci
+
+. "$1"
+
+key="${key#\'}"
+key="${key%\'}"
+
+case "$command" in
+    set)
+        [ "$(uci get "$key")" = "$value" ]
+        changed=$?
+        ;;
+    add_list)
+        printf "$(uci -q -d '\n' get "$key")" | grep -qxF "$value"
+        changed=$?
+        ;;
+    *)
+        printf '{"failed": true, "msg": "unsupported uci command: %s"}' "$command"
+        exit
+        ;;
+esac
+
+if [ $changed -eq 0 ]
+then
+    printf '{"changed": false}'
+else
+    uci "$command" "${key}=${value}"
+    printf '{"changed": true, "msg": "uci %s %s=%s"}' "$command" "$key" "$value"
+fi
