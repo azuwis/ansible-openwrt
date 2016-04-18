@@ -11,12 +11,16 @@ fi
 state=${state:-present}
 update_cache=${update_cache:-False}
 
-if [ "$update_cache" = 'True' -o ! -e /var/opkg-lists/ ]; then
+opkg_update() {
     stdout="$(opkg update)"
     if [ $? -ne 0 ]; then
         printf '{"failed": true, "msg": "opkg update failed", "stdout": "%s"}' "$stdout"
         exit
     fi
+}
+
+if [ "$update_cache" = 'True' ]; then
+    opkg_update
 fi
 
 if opkg status "$name" | grep -q installed; then
@@ -30,6 +34,9 @@ if [ "$state" = 'present' -a "$pkg_installed" = 'True' ] \
     printf '{"changed": false}'
 else
     if [ "$state" = 'present' ]; then
+        if [ ! -e /var/opkg-lists/ ]; then
+            opkg_update
+        fi
         action='install'
     else
         action='remove'
