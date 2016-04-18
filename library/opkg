@@ -33,14 +33,21 @@ if [ "$state" = 'present' -a "$pkg_installed" = 'True' ] \
        || [ "$state" = 'absent'  -a "$pkg_installed" = 'False' ] ; then
     printf '{"changed": false}'
 else
-    if [ "$state" = 'present' ]; then
-        if [ ! -e /var/opkg-lists/ ]; then
-            opkg_update
-        fi
-        action='install'
-    else
-        action='remove'
-    fi
+    case "$state" in
+        present)
+            if [ ! -e /var/opkg-lists/ ]; then
+                opkg_update
+            fi
+            action='install'
+            ;;
+        absent)
+            action='remove'
+            ;;
+        *)
+            printf '{"failed": true, "msg": "unsupported state: %s"}' "$state"
+            exit
+            ;;
+    esac
     stdout="$(opkg "$action" "$name")"
     if [ $? -ne 0 ]; then
         printf '{"failed": true, "msg": "opkg failed", "stdout": "%s"}' "$stdout"
