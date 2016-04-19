@@ -1,4 +1,7 @@
 ---
+# PRE:
+# 1) passwd
+# 2) /etc/init.d/telnetd stop; /etc/init.d/telnetd disable; /etc/init.d/dropbear start; /etc/init.d/dropbear enable
 - hosts: zion
   gather_facts: no
   roles:
