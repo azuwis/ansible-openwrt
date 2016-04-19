@@ -1,0 +1,51 @@
+#!/bin/sh
+
+file_md5() {
+   md5sum "$1" 2>/dev/null | cut -d' ' -f1
+}
+
+file_mode() {
+    ls -l "$1" 2>/dev/null | cut -d' ' -f1
+}
+
+. "$1"
+
+if [ x"$src" = x ]; then
+    printf '{"failed": true, "msg": "missing args: src"}'
+    exit
+fi
+
+if [ x"$dest" = x ]; then
+    printf '{"failed": true, "msg": "missing args: dest"}'
+    exit
+fi
+
+changed='False'
+
+if [ -d "$dest" ]; then
+    dest="$dest/$original_basename"
+fi
+
+if [ ! -e "$dest" -o "$(file_md5 "$src")" != "$(file_md5 "$dest")" ]; then
+    stdout="$(cp -p "$src" "$dest")"
+    if [ $? -ne 0 ]; then
+        printf '{"failed": true, "msg": "cp failed", "stdout": "%s"}' "$stdout"
+        exit
+    fi
+    changed='True'
+fi
+
+if [ x"$mode" != x ]; then
+    orig_mode="$(file_mode "$dest")"
+    chmod "$mode" "$dest"
+    new_mode="$(file_mode "$dest")"
+    if [ x"$orig_mode" != x"$new_mode" ]; then
+        changed='True'
+    fi
+fi
+
+if [ "$changed" = 'True' ]; then
+    printf '{"changed": true}'
+else
+    printf '{"changed": false}'
+fi
