@@ -1,7 +1,10 @@
 ---
-- name: install ddns-scripts
+- name: install packages
   opkg:
-    name: ddns-scripts
+    name: "{{ item }}"
+  with_items:
+    - ca-certificates
+    - ddns-scripts
 
 - name: remove default config
   uci:
