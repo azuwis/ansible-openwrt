@@ -1,4 +1,10 @@
 ---
+- name: copy authorized keys
+  copy:
+    src: ~/.ssh/id_rsa.pub
+    dest: /etc/dropbear/authorized_keys
+    mode: '0600'
+
 - name: config system
   uci:
     command: set
