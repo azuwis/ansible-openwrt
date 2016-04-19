@@ -6,14 +6,20 @@
 key="${key#\'}"
 key="${key%\'}"
 
+changed='False'
+
 case "$command" in
     set)
-        [ "$(uci get "$key")" = "$value" ]
-        changed=$?
+        test "$(uci get "$key")" != "$value" && changed='True'
         ;;
     add_list)
-        printf "$(uci -q -d '\n' get "$key")" | grep -qxF "$value"
-        changed=$?
+        printf "$(uci -q -d '\n' get "$key")" | grep -qxF "$value" || changed='True'
+        ;;
+    delete)
+        uci -q get "$key" >/dev/null && changed='True'
+        ;;
+    del_list)
+        printf "$(uci -q -d '\n' get "$key")" | grep -qxF "$value" && changed='True'
         ;;
     *)
         printf '{"failed": true, "msg": "unsupported uci command: %s"}' "$command"
@@ -21,7 +27,7 @@ case "$command" in
         ;;
 esac
 
-if [ $changed -eq 0 ]; then
+if [ "$changed" = 'False' ]; then
     printf '{"changed": false}'
 else
     uci "$command" "${key}=${value}"
