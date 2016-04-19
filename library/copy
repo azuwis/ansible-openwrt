@@ -8,17 +8,12 @@ file_mode() {
     ls -l "$1" 2>/dev/null | cut -d' ' -f1
 }
 
+cleanup() {
+    rm -f "$src"
+    rmdir "$(dirname "$src")"
+}
+
 . "$1"
-
-if [ x"$src" = x ]; then
-    printf '{"failed": true, "msg": "missing args: src"}'
-    exit
-fi
-
-if [ x"$dest" = x ]; then
-    printf '{"failed": true, "msg": "missing args: dest"}'
-    exit
-fi
 
 changed='False'
 
@@ -30,10 +25,12 @@ if [ ! -e "$dest" -o "$(file_md5 "$src")" != "$(file_md5 "$dest")" ]; then
     stdout="$(cp -p "$src" "$dest")"
     if [ $? -ne 0 ]; then
         printf '{"failed": true, "msg": "cp failed", "stdout": "%s"}' "$stdout"
+        cleanup
         exit
     fi
     changed='True'
 fi
+cleanup
 
 if [ x"$mode" != x ]; then
     orig_mode="$(file_mode "$dest")"
