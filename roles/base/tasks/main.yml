@@ -24,3 +24,13 @@
   notify:
     - uci commit
     - restart dnsmasq
+
+- name: install common packages
+  opkg:
+    name: "{{ item }}"
+  with_items:
+    - ca-certificates
+    - curl
+    - ip
+    - miniupnpd
+    - wget
