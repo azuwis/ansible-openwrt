@@ -1,0 +1,39 @@
+---
+- name: install ddns-scripts
+  opkg:
+    name: ddns-scripts
+
+- name: remove default config
+  uci:
+    command: delete
+    key: "{{ item }}"
+  with_items:
+    - ddns.myddns_ipv4
+    - ddns.myddns_ipv6
+  notify:
+    - uci commit
+    - restart ddns
+
+- name: config ddns service
+  uci:
+    command: set
+    key: "ddns.{{ item.name }}"
+    value: "service"
+  with_items: "{{ ddns }}"
+  notify:
+    - uci commit
+    - restart ddns
+  no_log: yes
+
+- name: config ddns options
+  uci:
+    command: set
+    key: "ddns.{{ item.0.name }}.{{ item.1.key }}"
+    value: "{{ item.1.value }}"
+  with_subelements:
+    - "{{ ddns }}"
+    - options
+  notify:
+    - uci commit
+    - restart ddns
+  no_log: yes

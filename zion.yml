@@ -5,4 +5,5 @@
 - hosts: zion
   gather_facts: no
   roles:
-    - base
+    - { role: base, tags: base }
+    - { role: ddns, tags: ddns }
